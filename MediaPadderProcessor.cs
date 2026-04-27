@@ -19,31 +19,23 @@ namespace MediaPadderPage
             centerTextPrimary.Report("0.0 %");
             rightTextPrimary.Report("Padding...");
 
-            //var cpuScalePadParams = $"scale={inputRect.Width}:{inputRect.Height},pad={outputSize.Width}:{outputSize.Height}:{inputRect.X}:{inputRect.Y}";
-            //string scalePadParams;
-            //switch (gpuInfo?.Vendor)
-            //{
-            //    case GpuVendor.Nvidia:
-            //        scalePadParams = $"scale_cuda={inputRect.Width}:{inputRect.Height},pad_cuda={outputSize.Width}:{outputSize.Height}:{inputRect.X}:{inputRect.Y}";
-            //        break;
-            //    default:
-            //        scalePadParams = cpuScalePadParams;
-            //        break;
-            //}
-
-            var scalePadParams = $"libplacebo=w={outputSize.Width}:h={outputSize.Height}:pos_x={inputRect.X}:pos_y={inputRect.Y}:pos_w={inputRect.Width}:pos_h={inputRect.Height}:fillcolor={colour}";
+            var scalePadParams = $"scale={inputRect.Width}:{inputRect.Height},pad={outputSize.Width}:{outputSize.Height}:{inputRect.X}:{inputRect.Y}:{colour}";
             if (isImage)
             {
                 await StartFfmpegProcess($"-i \"{inputPath}\" -vf \"{scalePadParams},setsar=1\" \"{GetOutputName(inputPath)}\"", ProgressHandler); // Images do not support hardware acceleration. (they do, but it is not worth the complexity)
             }
             else
             {
-                //Todo: Apparently, this libplacebo filter can be made faster by doing it all on the GPU with hwmap instead of hwupload (which moves frames between CPU and GPU)
-                if (gpuInfo != null)
+                switch (gpuInfo?.Vendor)
                 {
-                    //var gpuPixelFormat = await GetGpuPixelFormat(inputPath);
-                    var (hwDownArgs, hwUpArgs) = GpuInfo.FilterParams(gpuInfo);
-                    scalePadParams = $"{hwDownArgs}{scalePadParams}{hwUpArgs}";
+                    case GpuVendor.Nvidia:
+                        scalePadParams = $"scale_cuda={inputRect.Width}:{inputRect.Height},pad_cuda={outputSize.Width}:{outputSize.Height}:{inputRect.X}:{inputRect.Y}:{colour}";
+                        break;
+                    case GpuVendor.Amd or GpuVendor.Intel:
+                        var gpuPixelFormat = await GetGpuPixelFormat(inputPath);
+                        var (hwDownArgs, hwUpArgs) = GpuInfo.FilterParams(gpuInfo, gpuPixelFormat);
+                        scalePadParams = $"{hwDownArgs}{scalePadParams}{hwUpArgs}";
+                        break;
                 }
                 await StartFfmpegTranscodingProcessDefaultQuality([inputPath], GetOutputName(inputPath), $"-vf \"{scalePadParams},setsar=1\"", ProgressHandler);
             }
