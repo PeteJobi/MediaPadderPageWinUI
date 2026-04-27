@@ -116,6 +116,15 @@ namespace MediaPadderPage
             ratios.Add(GetAspectRatio(1, 2));
         }
 
+        private void CanvasContainer_OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            CanvasContainer.Clip = new RectangleGeometry
+            {
+                Rect = new Rect(0, 0, CanvasContainer.ActualWidth, CanvasContainer.ActualHeight)
+            };
+            if (!double.IsNaN(mediaElement.Width)) CenterContentCanvas();
+        }
+
         private void Video_OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (!double.IsNaN(mediaElement.Width)) return;
@@ -187,14 +196,6 @@ namespace MediaPadderPage
             previousPaddingSize.HeightText = OutputHeight.Text;
             ContentCanvas.Clip.Rect = ContentCanvas.Clip.Rect with { Width = size.Width, Height = size.Height };
             if(isVideo) mediaElement.InvalidateMeasure(); //For some reason, canvas does not update ActualWidth/Height when resizing, so we have to force it. This only seems to be an issue with video, not images.
-        }
-
-        private void CanvasContainer_OnSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            CanvasContainer.Clip = new RectangleGeometry
-            {
-                Rect = new Rect(0, 0, CanvasContainer.ActualWidth, CanvasContainer.ActualHeight)
-            };
         }
 
         private void SetPaddingAspectRatio(double aspectRatio)
