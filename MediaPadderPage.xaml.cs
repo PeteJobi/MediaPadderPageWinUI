@@ -118,7 +118,7 @@ namespace MediaPadderPage
 
         private void Video_OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (mediaElement.Width is not double.NaN) return;
+            if (!double.IsNaN(mediaElement.Width)) return;
             SizeRetrieved(e.NewSize.Width, e.NewSize.Height);
         }
 
