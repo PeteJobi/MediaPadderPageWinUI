@@ -11,7 +11,7 @@ using WinUIShared.Helpers;
 
 namespace MediaPadderPage
 {
-    public class MediaPadderProcessor(string ffmpegPath) : Processor(ffmpegPath)
+    public class MediaPadderProcessor(string ffmpegPath) : Processor(ffmpegPath, new FileLogger.FileLogger("ReelBox/Pad"))
     {
         public async Task PadMedia(string inputPath, Rect inputRect, Size outputSize, string colour, bool isImage)
         {
