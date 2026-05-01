@@ -148,7 +148,7 @@ namespace MediaPadderPage
             };
             var contentOrientations = Enum.GetValues<Orientation>().Append(Orientation.Horizontal | Orientation.Vertical)
                 .ToDictionary(o => o, o => new Appearance { HandleThickness = 30, Hover = handleHoveredBrush, Pressed = handlePressedHoverBrush });
-            var paddingOrientations = Enum.GetValues<Orientation>().Where(o => o != Orientation.Horizontal && o != Orientation.Vertical)
+            var paddingOrientations = new[] { Orientation.Left, Orientation.Top, Orientation.Right, Orientation.Bottom }
                 .ToDictionary(o => o, o => new Appearance { HandleThickness = 30, Hover = handleHoveredBrush, Pressed = handlePressedHoverBrush });
             contentResizer.InitDraggerResizer(mediaElement, contentOrientations, GetContentHandlingParameters(), new HandlingCallbacks
             {
@@ -293,7 +293,7 @@ namespace MediaPadderPage
             new()
             {
                 KeepAspectRatio = LockContentAspectRatioCheckBox.IsChecked == true,
-                Boundary = Boundary.NoBounds
+                Boundary = Boundary.BoundedAtEdges
             };
 
         private HandlingParameters GetPaddingHandlingParameters() =>
