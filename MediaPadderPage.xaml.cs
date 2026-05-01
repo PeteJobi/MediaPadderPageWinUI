@@ -152,14 +152,27 @@ namespace MediaPadderPage
                 BeforeResizing = (point, _) => new Point(point.X / ZoomTransform.ScaleX, point.Y / ZoomTransform.ScaleY),
                 AfterDragging = UpdateUiWithContentCoordinates,
                 AfterResizing = (rect, _) => UpdateUiWithContentCoordinates(rect),
-                DragCompleted = () => LockToCenterCheckBox.IsChecked = false,
-                ResizeCompleted = _ => CenterContent()
+                DragCompleted = () =>
+                {
+                    var contentRect = GetCurrentContentRect();
+                    contentResizer.PositionElement(mediaElement, double.Round(contentRect.Left), double.Round(contentRect.Top)); //Snap to whole pixels
+                    LockToCenterCheckBox.IsChecked = false;
+                },
+                ResizeCompleted = _ =>
+                {
+                    contentResizer.ResizeElement(mediaElement, double.Round(mediaElement.Width), double.Round(mediaElement.Height)); //Snap to whole pixels
+                    CenterContent();
+                }
             });
             paddingResizer.InitDraggerResizer(ContentCanvas, paddingOrientations, GetPaddingHandlingParameters(), new HandlingCallbacks
             {
                 BeforeResizing = RestrictPaddingTransformToNotOverlapContent,
-                AfterResizing = (rect, _) => UpdateUiWithPaddingSize(GetCurrentPaddingSize()),
-                ResizeCompleted = _ => CenterContentCanvas()
+                AfterResizing = (_, _) => UpdateUiWithPaddingSize(GetCurrentPaddingSize()),
+                ResizeCompleted = _ =>
+                {
+                    paddingResizer.ResizeElement(ContentCanvas, double.Round(ContentCanvas.Width), double.Round(ContentCanvas.Height)); //Snap to whole pixels
+                    CenterContentCanvas();
+                }
             });
             SetPaddingAspectRatio(1);
             CenterContentCanvas();
