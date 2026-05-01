@@ -142,10 +142,6 @@ namespace MediaPadderPage
             mediaElement.Height = height;
             ContentCanvas.Width = mediaElement.Width;
             ContentCanvas.Height = mediaElement.Height;
-            ContentCanvas.Clip = new RectangleGeometry
-            {
-                Rect = new Rect(0, 0, ContentCanvas.Width, ContentCanvas.Height)
-            };
             var contentOrientations = Enum.GetValues<Orientation>().Append(Orientation.Horizontal | Orientation.Vertical)
                 .ToDictionary(o => o, o => new Appearance { HandleThickness = 30, Hover = handleHoveredBrush, Pressed = handlePressedHoverBrush });
             var paddingOrientations = new[] { Orientation.Left, Orientation.Top, Orientation.Right, Orientation.Bottom }
@@ -218,8 +214,7 @@ namespace MediaPadderPage
             OutputHeight.Text = size.Height.ToString("F0");
             previousPaddingSize.WidthText = OutputWidth.Text;
             previousPaddingSize.HeightText = OutputHeight.Text;
-            ContentCanvas.Clip.Rect = ContentCanvas.Clip.Rect with { Width = size.Width, Height = size.Height };
-            if(isVideo) mediaElement.InvalidateMeasure(); //For some reason, canvas does not update ActualWidth/Height when resizing, so we have to force it. This only seems to be an issue with video, not images.
+            if (isVideo) mediaElement.InvalidateMeasure(); //For some reason, canvas does not update ActualWidth/Height when resizing, so we have to force it. This only seems to be an issue with video, not images.
         }
 
         private void SetPaddingAspectRatio(double aspectRatio)
