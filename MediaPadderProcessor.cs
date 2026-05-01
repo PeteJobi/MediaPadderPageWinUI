@@ -20,8 +20,8 @@ namespace MediaPadderPage
             centerTextPrimary.Report("0.0 %");
             rightTextPrimary.Report(isOnlyScaling ? "Scaling..." : "Padding...");
 
-            var scalePadParams = $"scale={outputSize.Width}:{outputSize.Height}";
-            if(!isOnlyScaling) scalePadParams += $",pad={outputSize.Width}:{outputSize.Height}:{inputRect.X}:{inputRect.Y}:{colour}";
+            var scalePadParams = isOnlyScaling ? $"scale={outputSize.Width}:{outputSize.Height}"
+                    : $"scale={inputRect.Width}:{inputRect.Height},pad={outputSize.Width}:{outputSize.Height}:{inputRect.X}:{inputRect.Y}:{colour}";
             if (isImage)
             {
                 await StartFfmpegProcess($"-i \"{inputPath}\" -vf \"{scalePadParams},setsar=1\" \"{GetOutputName(inputPath)}\"", ProgressHandler); // Images do not support hardware acceleration. (they do, but it is not worth the complexity)
