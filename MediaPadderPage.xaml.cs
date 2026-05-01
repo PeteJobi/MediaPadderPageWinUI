@@ -161,7 +161,7 @@ namespace MediaPadderPage
             });
             paddingResizer.InitDraggerResizer(ContentCanvas, paddingOrientations, GetPaddingHandlingParameters(), new HandlingCallbacks
             {
-                BeforeResizing = (point, _) => new Point(point.X / ZoomTransform.ScaleX, point.Y / ZoomTransform.ScaleY),
+                BeforeResizing = RestrictPaddingTransformToNotOverlapContent,
                 AfterResizing = (rect, _) => UpdateUiWithPaddingSize(GetCurrentPaddingSize()),
                 ResizeCompleted = _ => CenterContentCanvas()
             });
@@ -174,6 +174,30 @@ namespace MediaPadderPage
             var originalAspectRatio = GetAspectRatio(width, height);
             originalAspectRatio.Title = "Original";
             ratios.Add(originalAspectRatio);
+        }
+
+        private Point RestrictPaddingTransformToNotOverlapContent(Point point, Orientation orientation)
+        {
+            var contentRect = GetCurrentContentRect();
+            var paddingSize = GetCurrentPaddingSize();
+
+            switch (point.X, point.Y, orientation)
+            {
+                case (> 0, _, Orientation.Left): //Reducing width from left handle. Don't allow resizing past the left edge of the content
+                    point.X = Math.Min(point.X, paddingSize.Width - contentRect.Left - contentRect.Width);
+                    break;
+                case (< 0, _, Orientation.Right): //Reducing width from right handle. Don't allow resizing past the right edge of the content
+                    point.X = Math.Max(point.X, contentRect.Left + contentRect.Width - paddingSize.Width);
+                    break;
+                case (_, > 0, Orientation.Top): //Reducing height from top handle. Don't allow resizing past the top edge of the content
+                    point.Y = Math.Min(point.Y, paddingSize.Height - contentRect.Top - contentRect.Height);
+                    break;
+                case (_, < 0, Orientation.Bottom): //Reducing height from bottom handle. Don't allow resizing past the bottom edge of the content
+                    point.Y = Math.Max(point.Y, contentRect.Top + contentRect.Height - paddingSize.Height);
+                    break;
+            }
+
+            return new Point(point.X / ZoomTransform.ScaleX, point.Y / ZoomTransform.ScaleY);
         }
 
         private void UpdateUiWithContentCoordinates(Rect newRect)
@@ -344,7 +368,9 @@ namespace MediaPadderPage
         private void OutputWidth_OnLostFocus(object sender, RoutedEventArgs e)
         {
             if(previousPaddingSize.WidthText == OutputWidth.Text) return;
-            paddingResizer.ResizeElementWidth(ContentCanvas, OutputWidth.Value, parameters: GetPaddingHandlingParameters());
+            var contentRect = GetCurrentContentRect();
+            var restrictedWidth = Math.Max((LockToCenterCheckBox.IsChecked == true ? 0 : contentRect.Left) + contentRect.Width, OutputWidth.Value);
+            paddingResizer.ResizeElementWidth(ContentCanvas, restrictedWidth, parameters: GetPaddingHandlingParameters());
             CenterContentCanvas();
             UpdateUiWithPaddingSize(GetCurrentPaddingSize());
         }
@@ -352,7 +378,9 @@ namespace MediaPadderPage
         private void OutputHeight_OnLostFocus(object sender, RoutedEventArgs e)
         {
             if(previousPaddingSize.HeightText == OutputHeight.Text) return;
-            paddingResizer.ResizeElementHeight(ContentCanvas, OutputHeight.Value, parameters: GetPaddingHandlingParameters()); 
+            var contentRect = GetCurrentContentRect();
+            var restrictedHeight = Math.Max((LockToCenterCheckBox.IsChecked == true ? 0 : contentRect.Top) + contentRect.Height, OutputHeight.Value);
+            paddingResizer.ResizeElementHeight(ContentCanvas, restrictedHeight, parameters: GetPaddingHandlingParameters()); 
             CenterContentCanvas();
             UpdateUiWithPaddingSize(GetCurrentPaddingSize());
         }
