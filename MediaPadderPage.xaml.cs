@@ -157,12 +157,12 @@ namespace MediaPadderPage
                 {
                     var contentRect = GetCurrentContentRect();
                     contentResizer.PositionElement(mediaElement, double.Round(contentRect.Left), double.Round(contentRect.Top)); //Snap to whole pixels
-                    LockToCenterCheckBox.IsChecked = false;
+                    ContentCoordinatesUpdated(positionChanged: true);
                 },
                 ResizeCompleted = _ =>
                 {
                     contentResizer.ResizeElement(mediaElement, double.Round(mediaElement.Width), double.Round(mediaElement.Height)); //Snap to whole pixels
-                    CenterContent();
+                    ContentCoordinatesUpdated(sizeChanged: true);
                 }
             });
             paddingResizer.InitDraggerResizer(ContentCanvas, paddingOrientations, GetPaddingHandlingParameters(), new HandlingCallbacks
@@ -178,7 +178,7 @@ namespace MediaPadderPage
             SetPaddingAspectRatio(1);
             CenterContentCanvas();
             contentResizer.PositionElementAtCenter(mediaElement);
-            UpdateUiWithContentCoordinates(new Rect(contentResizer.GetElementLeft(mediaElement), contentResizer.GetElementTop(mediaElement), width, height));
+            ContentCoordinatesUpdated();
             UpdateUiWithPaddingSize(GetCurrentPaddingSize());
 
             var originalAspectRatio = GetAspectRatio(width, height);
@@ -238,17 +238,15 @@ namespace MediaPadderPage
                 panY = (CanvasContainer.ActualHeight - zoom * ContentCanvas.Height) / 2 - top * zoom;
             }
             AnimateTransform(panX, panY, zoom);
-            CenterContent();
+            if(CenterContent()) ContentCoordinatesUpdated();
         }
 
-        private void CenterContent()
+        private bool CenterContent()
         {
-            if (LockToCenterCheckBox.IsChecked == true && contentResizer != null)
-            {
+            if (LockToCenterCheckBox.IsChecked != true || contentResizer == null) return false;
                 contentResizer.PositionElementAtCenter(mediaElement);
-                UpdateUiWithContentCoordinates(GetCurrentContentRect());
+            return true;
             }
-        }
 
         private void AnimateTransform(double panX, double panY, double zoom)
         {
@@ -322,36 +320,40 @@ namespace MediaPadderPage
 
         private Size GetCurrentPaddingSize() => new(ContentCanvas.Width, ContentCanvas.Height);
 
+        private void ContentCoordinatesUpdated(bool positionChanged = false, bool sizeChanged = false)
+        {
+            if (positionChanged) LockToCenterCheckBox.IsChecked = false;
+            if(sizeChanged) CenterContent();
+            UpdateUiWithContentCoordinates(GetCurrentContentRect());
+            UpdatePaddingHandlingParameters();
+        }
+
         private void X_OnTextChanged(object sender, RoutedEventArgs e)
         {
             if (previousContentRect.XText == X.Text) return;
             contentResizer.PositionElementLeft(mediaElement, X.Value);
-            UpdateUiWithContentCoordinates(GetCurrentContentRect());
-            LockToCenterCheckBox.IsChecked = false;
+            ContentCoordinatesUpdated(positionChanged: true);
         }
 
         private void XDelta_OnTextChanged(object sender, RoutedEventArgs e)
         {
             if (previousContentRect.X2Text == XDelta.Text) return;
-            contentResizer.ResizeElementWidth(mediaElement, XDelta.Value, parameters: GetContentHandlingParameters());
-            CenterContent();
-            UpdateUiWithContentCoordinates(GetCurrentContentRect());
+            contentResizer.ResizeElementWidth(mediaElement, XDelta.Value);
+            ContentCoordinatesUpdated(sizeChanged: true);
         }
 
         private void Y_OnTextChanged(object sender, RoutedEventArgs e)
         {
             if (previousContentRect.YText == Y.Text) return;
             contentResizer.PositionElementTop(mediaElement, Y.Value);
-            UpdateUiWithContentCoordinates(GetCurrentContentRect());
-            LockToCenterCheckBox.IsChecked = false;
+            ContentCoordinatesUpdated(positionChanged: true);
         }
 
         private void YDelta_OnTextChanged(object sender, RoutedEventArgs e)
         {
             if (previousContentRect.Y2Text == YDelta.Text) return;
-            contentResizer.ResizeElementHeight(mediaElement, YDelta.Value, parameters: GetContentHandlingParameters());
-            CenterContent();
-            UpdateUiWithContentCoordinates(GetCurrentContentRect());
+            contentResizer.ResizeElementHeight(mediaElement, YDelta.Value);
+            ContentCoordinatesUpdated(sizeChanged: true);
         }
 
         private void OutputWidth_OnLostFocus(object sender, RoutedEventArgs e)
@@ -379,7 +381,11 @@ namespace MediaPadderPage
             contentResizer?.SetNewHandlingParameters(mediaElement, GetContentHandlingParameters());
         }
 
-        private void LockToCenterChanged(object sender, RoutedEventArgs e) => CenterContent();
+        private void LockToCenterChanged(object sender, RoutedEventArgs e)
+        {
+            if(CenterContent()) ContentCoordinatesUpdated();
+            else if (contentResizer != null) UpdatePaddingHandlingParameters();
+        }
 
         private void LockPaddingAspectRatioChanged(object sender, RoutedEventArgs e)
         {
