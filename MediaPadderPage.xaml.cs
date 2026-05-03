@@ -172,14 +172,13 @@ namespace MediaPadderPage
                 ResizeCompleted = _ =>
                 {
                     paddingResizer.ResizeElement(ContentCanvas, double.Round(ContentCanvas.Width), double.Round(ContentCanvas.Height)); //Snap to whole pixels
-                    CenterContentCanvas();
+                    PaddingDimensionsUpdated();
                 }
             });
             SetPaddingAspectRatio(1);
-            CenterContentCanvas();
+            PaddingDimensionsUpdated();
             contentResizer.PositionElementAtCenter(mediaElement);
             ContentCoordinatesUpdated();
-            UpdateUiWithPaddingSize(GetCurrentPaddingSize());
 
             var originalAspectRatio = GetAspectRatio(width, height);
             originalAspectRatio.Title = "Original";
@@ -217,7 +216,6 @@ namespace MediaPadderPage
             {
                 paddingResizer.ResizeElement(ContentCanvas, mediaElement.Height * aspectRatio, mediaElement.Height);
             }
-            UpdateUiWithPaddingSize(new Size(ContentCanvas.Width, ContentCanvas.Height));
         }
 
         private void CenterContentCanvas()
@@ -328,6 +326,12 @@ namespace MediaPadderPage
             UpdatePaddingHandlingParameters();
         }
 
+        private void PaddingDimensionsUpdated()
+        {
+            CenterContentCanvas();
+            UpdateUiWithPaddingSize(GetCurrentPaddingSize());
+        }
+
         private void X_OnTextChanged(object sender, RoutedEventArgs e)
         {
             if (previousContentRect.XText == X.Text) return;
@@ -359,21 +363,15 @@ namespace MediaPadderPage
         private void OutputWidth_OnLostFocus(object sender, RoutedEventArgs e)
         {
             if(previousPaddingSize.WidthText == OutputWidth.Text) return;
-            var contentRect = GetCurrentContentRect();
-            var restrictedWidth = Math.Max((LockToCenterCheckBox.IsChecked == true ? 0 : contentRect.Left) + contentRect.Width, OutputWidth.Value);
-            paddingResizer.ResizeElementWidth(ContentCanvas, restrictedWidth, parameters: GetPaddingHandlingParameters());
-            CenterContentCanvas();
-            UpdateUiWithPaddingSize(GetCurrentPaddingSize());
+            paddingResizer.ResizeElementWidth(ContentCanvas, OutputWidth.Value);
+            PaddingDimensionsUpdated();
         }
 
         private void OutputHeight_OnLostFocus(object sender, RoutedEventArgs e)
         {
             if(previousPaddingSize.HeightText == OutputHeight.Text) return;
-            var contentRect = GetCurrentContentRect();
-            var restrictedHeight = Math.Max((LockToCenterCheckBox.IsChecked == true ? 0 : contentRect.Top) + contentRect.Height, OutputHeight.Value);
-            paddingResizer.ResizeElementHeight(ContentCanvas, restrictedHeight, parameters: GetPaddingHandlingParameters()); 
-            CenterContentCanvas();
-            UpdateUiWithPaddingSize(GetCurrentPaddingSize());
+            paddingResizer.ResizeElementHeight(ContentCanvas, OutputHeight.Value); 
+            PaddingDimensionsUpdated();
         }
 
         private void LockContentAspectRatioChanged(object sender, RoutedEventArgs e)
@@ -396,7 +394,7 @@ namespace MediaPadderPage
         {
             var ratio = (AspectRatio)((Button)sender).DataContext;
             SetPaddingAspectRatio(ratio.Width / ratio.Height);
-            CenterContentCanvas();
+            PaddingDimensionsUpdated();
         }
 
         private async void Pad(object sender, RoutedEventArgs e)
