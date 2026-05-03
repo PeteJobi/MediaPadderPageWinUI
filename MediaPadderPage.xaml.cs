@@ -50,6 +50,7 @@ namespace MediaPadderPage
         private readonly ObservableCollection<AspectRatio> ratios = [];
         private const double IconMaxSize = 40;
         private MediaPadderProcessor padProcessor;
+        private HandlingParameters paddingHandlingParameters = new(){ Boundary = Boundary.NoBounds };
 
         public MediaPadderPage()
         {
@@ -166,7 +167,7 @@ namespace MediaPadderPage
             });
             paddingResizer.InitDraggerResizer(ContentCanvas, paddingOrientations, GetPaddingHandlingParameters(), new HandlingCallbacks
             {
-                BeforeResizing = RestrictPaddingTransformToNotOverlapContent,
+                BeforeResizing = (point, _) => new Point(point.X / ZoomTransform.ScaleX, point.Y / ZoomTransform.ScaleY),
                 AfterResizing = (_, _) => UpdateUiWithPaddingSize(GetCurrentPaddingSize()),
                 ResizeCompleted = _ =>
                 {
@@ -183,30 +184,6 @@ namespace MediaPadderPage
             var originalAspectRatio = GetAspectRatio(width, height);
             originalAspectRatio.Title = "Original";
             ratios.Add(originalAspectRatio);
-        }
-
-        private Point RestrictPaddingTransformToNotOverlapContent(Point point, Orientation orientation)
-        {
-            var contentRect = GetCurrentContentRect();
-            var paddingSize = GetCurrentPaddingSize();
-
-            switch (point.X, point.Y, orientation)
-            {
-                case (> 0, _, Orientation.Left): //Reducing width from left handle. Don't allow resizing past the left edge of the content
-                    point.X = Math.Min(point.X, paddingSize.Width - contentRect.Left - contentRect.Width);
-                    break;
-                case (< 0, _, Orientation.Right): //Reducing width from right handle. Don't allow resizing past the right edge of the content
-                    point.X = Math.Max(point.X, contentRect.Left + contentRect.Width - paddingSize.Width);
-                    break;
-                case (_, > 0, Orientation.Top): //Reducing height from top handle. Don't allow resizing past the top edge of the content
-                    point.Y = Math.Min(point.Y, paddingSize.Height - contentRect.Top - contentRect.Height);
-                    break;
-                case (_, < 0, Orientation.Bottom): //Reducing height from bottom handle. Don't allow resizing past the bottom edge of the content
-                    point.Y = Math.Max(point.Y, contentRect.Top + contentRect.Height - paddingSize.Height);
-                    break;
-            }
-
-            return new Point(point.X / ZoomTransform.ScaleX, point.Y / ZoomTransform.ScaleY);
         }
 
         private void UpdateUiWithContentCoordinates(Rect newRect)
@@ -321,6 +298,9 @@ namespace MediaPadderPage
             storyboard.Begin();
         }
 
+        private void UpdatePaddingHandlingParameters() =>
+            paddingResizer.SetNewHandlingParameters(ContentCanvas, GetPaddingHandlingParameters());
+
         private HandlingParameters GetContentHandlingParameters() =>
             new()
             {
@@ -328,13 +308,14 @@ namespace MediaPadderPage
                 Boundary = Boundary.BoundedAtEdges
             };
 
-        private HandlingParameters GetPaddingHandlingParameters() =>
-            new()
+        private HandlingParameters GetPaddingHandlingParameters()
             {
-                KeepAspectRatio = LockPaddingAspectRatioCheckBox.IsChecked == true,
-                Boundary = Boundary.NoBounds,
-
-            };
+            paddingHandlingParameters.KeepAspectRatio = LockPaddingAspectRatioCheckBox.IsChecked == true;
+            var contentRect = GetCurrentContentRect();
+            paddingHandlingParameters.MinimumWidth = (LockToCenterCheckBox.IsChecked == true ? 0 : contentRect.Left) + contentRect.Width;
+            paddingHandlingParameters.MinimumHeight = (LockToCenterCheckBox.IsChecked == true ? 0 : contentRect.Top) + contentRect.Height;
+            return paddingHandlingParameters;
+        }
 
         private Rect GetCurrentContentRect() =>
             new(contentResizer.GetElementLeft(mediaElement), contentResizer.GetElementTop(mediaElement), mediaElement.Width, mediaElement.Height);
