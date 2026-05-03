@@ -15,6 +15,20 @@
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
         <converters:BoolToVisibilityConverter x:Name="BoolToNegatedVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
         <converters:BoolToVisibilityConverter x:Name="BoolToVisibilityConverter"/>
+        <MenuFlyout x:Name="ContentFlyout">
+            <MenuFlyoutSubItem Text="Move to">
+                <MenuFlyoutItem Text="Top center" Click="MoveContentToTopCenter"/>
+                <MenuFlyoutItem Text="Bottom center" Click="MoveContentToBottomCenter"/>
+                <MenuFlyoutItem Text="Left center" Click="MoveContentToLeftCenter"/>
+                <MenuFlyoutItem Text="Right center" Click="MoveContentToRightCenter"/>
+                <MenuFlyoutItem Text="Center" Click="MoveContentToCenter"/>
+            </MenuFlyoutSubItem>
+            <MenuFlyoutSubItem Text="Match padding">
+                <MenuFlyoutItem Text="Match padding width" Click="MatchPaddingWidth"/>
+                <MenuFlyoutItem Text="Match padding height" Click="MatchPaddingHeight"/>
+                <MenuFlyoutItem Text="Match padding dimensions" Click="MatchPaddingDimensions"/>
+            </MenuFlyoutSubItem>
+        </MenuFlyout>
     </Page.Resources>
 
     <Grid>
@@ -36,8 +50,15 @@
                     </TransformGroup>
                 </Canvas.RenderTransform>
                 <Canvas x:Name="ContentCanvas" Background="Black" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <Image Name="Image" Stretch="Fill" ImageOpened="Image_OnImageOpened" Visibility="{x:Bind isVideo, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}"/>
-                    <MediaPlayerElement Name="Video" Stretch="Fill" SizeChanged="Video_OnSizeChanged" Visibility="{x:Bind isVideo, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Canvas.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Text="Match content width" Click="MatchContentWidth"/>
+                            <MenuFlyoutItem Text="Match content height" Click="MatchContentHeight"/>
+                            <MenuFlyoutItem Text="Match content dimensions" Click="MatchContentDimensions"/>
+                        </MenuFlyout>
+                    </Canvas.ContextFlyout>
+                    <Image Name="Image" Stretch="Fill" ImageOpened="Image_OnImageOpened" Visibility="{x:Bind isVideo, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}" ContextFlyout="{StaticResource ContentFlyout}"/>
+                    <MediaPlayerElement Name="Video" Stretch="Fill" SizeChanged="Video_OnSizeChanged" Visibility="{x:Bind isVideo, Converter={StaticResource BoolToVisibilityConverter}}" ContextFlyout="{StaticResource ContentFlyout}"/>
                 </Canvas>
             </Canvas>
         </Grid>

@@ -374,6 +374,30 @@ namespace MediaPadderPage
             PaddingDimensionsUpdated();
         }
 
+        private void MatchContentWidth(object sender, RoutedEventArgs e)
+        {
+            contentResizer.PositionElementLeft(mediaElement, 0);
+            ContentCoordinatesUpdated();
+            paddingResizer.ResizeElementWidth(ContentCanvas, mediaElement.Width);
+            PaddingDimensionsUpdated();
+        }
+
+        private void MatchContentHeight(object sender, RoutedEventArgs e)
+        {
+            contentResizer.PositionElementTop(mediaElement, 0);
+            ContentCoordinatesUpdated();
+            paddingResizer.ResizeElementHeight(ContentCanvas, mediaElement.Height);
+            PaddingDimensionsUpdated();
+        }
+
+        private void MatchContentDimensions(object sender, RoutedEventArgs e)
+        {
+            contentResizer.PositionElement(mediaElement, 0, 0);
+            ContentCoordinatesUpdated();
+            paddingResizer.ResizeElement(ContentCanvas, mediaElement.Width, mediaElement.Height);
+            PaddingDimensionsUpdated();
+        }
+
         private void LockContentAspectRatioChanged(object sender, RoutedEventArgs e)
         {
             contentResizer?.SetNewHandlingParameters(mediaElement, GetContentHandlingParameters());
@@ -396,6 +420,61 @@ namespace MediaPadderPage
             var ratio = (AspectRatio)((Button)sender).DataContext;
             SetPaddingAspectRatio(ratio.Width / ratio.Height);
             PaddingDimensionsUpdated();
+        }
+
+        private void MoveContentToTopCenter(object sender, RoutedEventArgs e)
+        {
+            LockToCenterCheckBox.IsChecked = false;
+            contentResizer.PositionElement(mediaElement, (ContentCanvas.Width - mediaElement.Width) / 2, 0);
+            ContentCoordinatesUpdated();
+        }
+
+        private void MoveContentToBottomCenter(object sender, RoutedEventArgs e)
+        {
+            LockToCenterCheckBox.IsChecked = false;
+            contentResizer.PositionElement(mediaElement, (ContentCanvas.Width - mediaElement.Width) / 2, ContentCanvas.Height - mediaElement.Height);
+            ContentCoordinatesUpdated();
+        }
+
+        private void MoveContentToLeftCenter(object sender, RoutedEventArgs e)
+        {
+            LockToCenterCheckBox.IsChecked = false;
+            contentResizer.PositionElement(mediaElement, 0, (ContentCanvas.Height - mediaElement.Height) / 2);
+            ContentCoordinatesUpdated();
+        }
+
+        private void MoveContentToRightCenter(object sender, RoutedEventArgs e)
+        {
+            LockToCenterCheckBox.IsChecked = false;
+            contentResizer.PositionElement(mediaElement, ContentCanvas.Width - mediaElement.Width, (ContentCanvas.Height - mediaElement.Height) / 2);
+            ContentCoordinatesUpdated();
+        }
+
+        private void MoveContentToCenter(object sender, RoutedEventArgs e)
+        {
+            contentResizer.PositionElementAtCenter(mediaElement);
+            ContentCoordinatesUpdated();
+        }
+
+        private void MatchPaddingWidth(object sender, RoutedEventArgs e)
+        {
+            contentResizer.PositionElement(mediaElement, 0, contentResizer.GetElementTop(mediaElement));
+            contentResizer.ResizeElementWidth(mediaElement, ContentCanvas.Width);
+            ContentCoordinatesUpdated();
+        }
+
+        private void MatchPaddingHeight(object sender, RoutedEventArgs e)
+        {
+            contentResizer.PositionElement(mediaElement, contentResizer.GetElementLeft(mediaElement), 0);
+            contentResizer.ResizeElementHeight(mediaElement, ContentCanvas.Height);
+            ContentCoordinatesUpdated();
+        }
+
+        private void MatchPaddingDimensions(object sender, RoutedEventArgs e)
+        {
+            contentResizer.PositionElement(mediaElement, 0, 0);
+            contentResizer.ResizeElement(mediaElement, ContentCanvas.Width, ContentCanvas.Height);
+            ContentCoordinatesUpdated();
         }
 
         private async void Pad(object sender, RoutedEventArgs e)
