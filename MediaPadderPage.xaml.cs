@@ -392,6 +392,7 @@ namespace MediaPadderPage
 
         private void SpecificRatio(object sender, RoutedEventArgs e)
         {
+            if (LockToCenterCheckBox.IsChecked != true) LockToCenterCheckBox.IsChecked = true;
             var ratio = (AspectRatio)((Button)sender).DataContext;
             SetPaddingAspectRatio(ratio.Width / ratio.Height);
             PaddingDimensionsUpdated();
