@@ -51,13 +51,23 @@ namespace MediaPadderPage
         private const double IconMaxSize = 40;
         private MediaPadderProcessor padProcessor;
         private HandlingParameters paddingHandlingParameters = new(){ Boundary = Boundary.NoBounds };
+        private readonly ObservableCollection<BgColourModel> bgColourOptions =
+        [
+            new() { ColourHexValue = "#000000", ColourText = "Black" },
+            new() { ColourHexValue = "#FFFFFF", ColourText = "White" },
+            new() { ColourHexValue = "#808080", ColourText = "Gray" },
+            new() { ColourHexValue = string.Empty, ColourText = "Custom" },
+        ];
 
         public MediaPadderPage()
         {
             InitializeComponent();
             contentResizer = new DraggerResizer.DraggerResizer();
             paddingResizer = new DraggerResizer.DraggerResizer();
-            viewModel = new PadMainModel();
+            viewModel = new PadMainModel
+            {
+                SelectedBgColour = bgColourOptions[0]
+            };
             PopulateAspectRatios();
         }
 
@@ -495,7 +505,7 @@ namespace MediaPadderPage
         private async void Pad(object sender, RoutedEventArgs e)
         {
             outputFile = null;
-            outputFile = await ProcessManager.StartProcess(padProcessor.PadMedia(mediaPath, GetCurrentContentRect(), GetCurrentPaddingSize(), "#000000", !isVideo));
+            outputFile = await ProcessManager.StartProcess(padProcessor.PadMedia(mediaPath, GetCurrentContentRect(), GetCurrentPaddingSize(), viewModel.SelectedBgColour.ColourHexValue, !isVideo));
         }
 
         private void GoBack(object sender, RoutedEventArgs e)

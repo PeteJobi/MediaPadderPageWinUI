@@ -51,7 +51,7 @@
                         <TranslateTransform x:Name="PanTransform" X="0" Y="0"/>
                     </TransformGroup>
                 </Canvas.RenderTransform>
-                <Canvas x:Name="ContentCanvas" Background="Black" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <Canvas x:Name="ContentCanvas" Background="{x:Bind viewModel.SelectedBgColour.ColourHexValueRestricted, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Top">
                     <Canvas.ContextFlyout>
                         <MenuFlyout>
                             <MenuFlyoutItem Text="Match content width" Click="MatchContentWidth"/>
@@ -148,6 +148,24 @@
                             </DataTemplate>
                         </GridView.ItemTemplate>
                     </GridView>
+                    <RelativePanel>
+                        <TextBlock Name="BgText" Margin="0,0,0,10">Padding colour</TextBlock>
+                        <ComboBox ItemsSource="{x:Bind bgColourOptions}" SelectedItem="{x:Bind viewModel.SelectedBgColour, Mode=TwoWay}"
+                                  RelativePanel.Below="BgText" Width="140">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="local:BgColourModel">
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <Rectangle Fill="{x:Bind ColourHexValueRestrictedTransparentDefault, Mode=OneWay}" VerticalAlignment="Center" Width="20" Height="20"/>
+                                        <TextBlock Text="{x:Bind ColourText}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock RelativePanel.AlignRightWithPanel="True"
+                                   Visibility="{x:Bind viewModel.SelectedBgColour.ColourText, Converter={StaticResource StringEqualityVisibilityConverter}, Mode=OneWay}">Custom colour</TextBlock>
+                        <TextBox Visibility="{x:Bind viewModel.SelectedBgColour.ColourText, Converter={StaticResource StringEqualityVisibilityConverter}, Mode=OneWay}" Width="140" PlaceholderText="#000000"
+                                 Text="{x:Bind viewModel.SelectedBgColour.ColourHexValue, Mode=TwoWay}" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignBottomWithPanel="True"/>
+                    </RelativePanel>
                 </StackPanel>
             </ScrollView>
             <controls:HardwareSelector Grid.Row="1" x:Name="HardwareSelector" Margin="0,0,0,10"/>
