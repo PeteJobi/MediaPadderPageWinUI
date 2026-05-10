@@ -57,12 +57,10 @@
                             <MenuFlyoutItem Text="Match content dimensions" Click="MatchContentDimensions"/>
                         </MenuFlyout>
                     </Canvas.ContextFlyout>
-                    <Image Name="Image" Stretch="Fill" ImageOpened="Image_OnImageOpened" Visibility="{x:Bind isVideo, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}" ContextFlyout="{StaticResource ContentFlyout}"/>
-                    <MediaPlayerElement Name="Video" Stretch="Fill" SizeChanged="Video_OnSizeChanged" Visibility="{x:Bind isVideo, Converter={StaticResource BoolToVisibilityConverter}}" ContextFlyout="{StaticResource ContentFlyout}"/>
                 </Canvas>
             </Canvas>
         </Grid>
-        <timeline:VideoControls Grid.Column="0" Grid.Row="1" Height="50" MediaPlayer="{x:Bind Video.MediaPlayer}" CurrentTimeEditable="True" ShowFractionalSeconds="True"
+        <timeline:VideoControls x:Name="VideoControls" Grid.Column="0" Grid.Row="1" Height="50" CurrentTimeEditable="True" ShowFractionalSeconds="True"
                                 Visibility="{x:Bind isVideo, Converter={StaticResource BoolToVisibilityConverter}}" Margin="10,0"/>
         <controls:ProcessManager Grid.Column="0" Grid.Row="2" x:Name="ProcessManager" State="{x:Bind viewModel.State, Mode=TwoWay}"
                                  Processor="{x:Bind padProcessor}" HardwareSelector="{x:Bind HardwareSelector}" OnlyPrimary="True" Padding="10"/>

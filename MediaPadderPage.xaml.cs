@@ -74,13 +74,28 @@ namespace MediaPadderPage
             MediaName.Text = Path.GetFileName(mediaPath);
             if (isVideo)
             {
-                Video.Source = MediaSource.CreateFromUri(new Uri(Processor.GetSafePath(mediaPath)));
-                mediaElement = Video;
+                var video = new MediaPlayerElement
+                {
+                    Stretch = Stretch.Fill,
+                    Source = MediaSource.CreateFromUri(new Uri(Processor.GetSafePath(mediaPath))),
+                    ContextFlyout = ContentFlyout
+                };
+                ContentCanvas.Children.Add(video);
+                video.SizeChanged += Video_OnSizeChanged;
+                VideoControls.MediaPlayer = video.MediaPlayer;
+                mediaElement = video;
             }
             else
             {
-                Image.Source = new BitmapImage(new Uri(Processor.GetSafePath(mediaPath)));
-                mediaElement = Image;
+                var image = new Image
+                {
+                    Stretch = Stretch.Fill,
+                    Source = new BitmapImage(new Uri(Processor.GetSafePath(mediaPath))),
+                    ContextFlyout = ContentFlyout
+                };
+                ContentCanvas.Children.Add(image);
+                image.ImageOpened += Image_OnImageOpened;
+                mediaElement = image;
             }
             base.OnNavigatedTo(e);
         }
@@ -134,7 +149,8 @@ namespace MediaPadderPage
 
         private void Image_OnImageOpened(object sender, RoutedEventArgs e)
         {
-            SizeRetrieved(Image.ActualWidth, Image.ActualHeight);
+            var image = (Image)sender;
+            SizeRetrieved(image.ActualWidth, image.ActualHeight);
         }
 
         private void SizeRetrieved(double width, double height)
@@ -203,7 +219,6 @@ namespace MediaPadderPage
             OutputHeight.Text = size.Height.ToString("F0");
             previousPaddingSize.WidthText = OutputWidth.Text;
             previousPaddingSize.HeightText = OutputHeight.Text;
-            if (isVideo) mediaElement.InvalidateMeasure(); //For some reason, canvas does not update ActualWidth/Height when resizing, so we have to force it. This only seems to be an issue with video, not images.
         }
 
         private void SetPaddingAspectRatio(double aspectRatio)
@@ -485,7 +500,7 @@ namespace MediaPadderPage
 
         private void GoBack(object sender, RoutedEventArgs e)
         {
-            if (isVideo) Video.MediaPlayer.Pause();
+            if (isVideo) ((MediaPlayerElement)mediaElement).MediaPlayer.Pause();
             _ = padProcessor.Cancel();
             if (navigateTo == null) Frame.GoBack();
             else Frame.NavigateToType(Type.GetType(navigateTo), outputFile, new FrameNavigationOptions { IsNavigationStackEnabled = false });
