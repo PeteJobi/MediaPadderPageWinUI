@@ -9,12 +9,14 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:WinUIShared.Controls"
     xmlns:timeline="using:Timeline"
+    xmlns:helpers="using:WinUIShared.Helpers"
     mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
         <converters:BoolToVisibilityConverter x:Name="BoolToNegatedVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
         <converters:BoolToVisibilityConverter x:Name="BoolToVisibilityConverter"/>
+        <helpers:StringEqualityVisibilityConverter x:Name="StringEqualityVisibilityConverter" CompareTo="Custom"/>
         <MenuFlyout x:Name="ContentFlyout">
             <MenuFlyoutSubItem Text="Move to">
                 <MenuFlyoutItem Text="Top center" Click="MoveContentToTopCenter"/>
