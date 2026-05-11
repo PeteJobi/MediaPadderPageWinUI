@@ -16,7 +16,7 @@ private void GoToPadder(){
 
 protected override void OnNavigatedTo(NavigationEventArgs e)
 {
-    //outputFile is sent only if TypeToNavigateTo was specified in TourProps.
+    //outputFile is sent only if TypeToNavigateTo was specified in PadderProps.
     if (e.Parameter is string outputFile)
     {
         Console.WriteLine($"Path to the toured file is {outputFile}");
