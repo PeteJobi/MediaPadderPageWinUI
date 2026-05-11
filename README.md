@@ -1,7 +1,8 @@
 ## Media Padder Page (WinUI 3)
 This provides a reuseable WinUI 3 page with an interface that allows for padding the dimensions of videos and images.
 
-<img width="1786" height="1075" alt="image" src="https://github.com/user-attachments/assets/7161a45f-c8bb-4f61-bc97-0480aa65d382" />
+<img width="1431" height="1033" alt="image" src="https://github.com/user-attachments/assets/6930b08b-ed98-426e-9cdf-ee5fddbfe5db" />
+
 
 # How to use
 This library depends on [DraggerResizerWinUI](https://github.com/PeteJobi/DraggerResizerWinUI), and for videos, [TextToTimeSpanWinUI](https://github.com/PeteJobi/TextToTimeSpanWinUI) and [TimelineWinUI](https://github.com/PeteJobi/TimelineWinUI). Include the libraries into your WinUI solution and reference them in your WinUI project. Then navigate to the **MediaPadderPage** when the user requests for it, passing a **PadderProps** object as parameter.
