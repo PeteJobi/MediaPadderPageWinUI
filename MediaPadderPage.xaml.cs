@@ -182,12 +182,14 @@ namespace MediaPadderPage
                 DragCompleted = () =>
                 {
                     var contentRect = GetCurrentContentRect();
-                    contentResizer.PositionElement(mediaElement, double.Round(contentRect.Left), double.Round(contentRect.Top)); //Snap to whole pixels
+                    contentResizer.PositionElement(mediaElement, double.Round(contentRect.Left), double.Round(contentRect.Top)); //Snap to whole pixels //Todo: Move this snapping to the resizer class (as an option) to avoid code duplication
                     ContentCoordinatesUpdated(positionChanged: true);
                 },
                 ResizeCompleted = _ =>
                 {
-                    contentResizer.ResizeElement(mediaElement, double.Round(mediaElement.Width), double.Round(mediaElement.Height)); //Snap to whole pixels
+                    var contentRect = GetCurrentContentRect();
+                    contentResizer.PositionElement(mediaElement, double.Round(contentRect.Left), double.Round(contentRect.Top)); //Snap to whole pixels
+                    contentResizer.ResizeElement(mediaElement, double.Round(contentRect.Width), double.Round(contentRect.Height)); //Snap to whole pixels
                     ContentCoordinatesUpdated(sizeChanged: true);
                 }
             });
@@ -269,7 +271,7 @@ namespace MediaPadderPage
         {
             if (LockToCenterCheckBox.IsChecked != true || contentResizer == null) return false;
                 contentResizer.PositionElementAtCenter(mediaElement);
-            return true;
+                return true;
             }
 
         private void AnimateTransform(double panX, double panY, double zoom)
