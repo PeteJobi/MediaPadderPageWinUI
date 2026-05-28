@@ -229,6 +229,7 @@ namespace MediaPadderPage
             OutputHeight.Text = size.Height.ToString("F0");
             previousPaddingSize.WidthText = OutputWidth.Text;
             previousPaddingSize.HeightText = OutputHeight.Text;
+            if (isVideo) mediaElement.InvalidateMeasure(); //This is a workaround for a bug where the ActualWidth/Height of the ContentCanvas doesn't update properly after resizing, causing the background colour to not fill the whole canvas. Only affects videos
         }
 
         private void SetPaddingAspectRatio(double aspectRatio)
