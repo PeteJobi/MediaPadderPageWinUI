@@ -50,7 +50,7 @@ namespace MediaPadderPage
                         }
                         break;
                     case GpuVendor.Intel:
-                        if(isOnlyScaling) scalePadParams = $"scale_qsv={outputSize.Width}:{outputSize.Height}";
+                        if(isOnlyScaling) scalePadParams = $"vpp_qsv={outputSize.Width}:{outputSize.Height}";
                         else
                         {
                             var (hwDownArgs, hwUpArgs) = GpuInfo.FilterParams(gpuInfo, gpuPixelFormat);
