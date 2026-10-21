@@ -508,7 +508,7 @@ namespace MediaPadderPage
         private async void Pad(object sender, RoutedEventArgs e)
         {
             outputFile = null;
-            outputFile = await ProcessManager.StartProcess(padProcessor.PadMedia(mediaPath, GetCurrentContentRect(), GetCurrentPaddingSize(), viewModel.SelectedBgColour.ColourHexValue, !isVideo));
+            outputFile = await ProcessManager.StartProcess(() => padProcessor.PadMedia(mediaPath, GetCurrentContentRect(), GetCurrentPaddingSize(), viewModel.SelectedBgColour.ColourHexValue, !isVideo));
         }
 
         private void GoBack(object sender, RoutedEventArgs e)
